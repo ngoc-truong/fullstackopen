@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
 import personService from "./services/persons";
 
 const App = () => {
@@ -9,6 +10,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [newSearch, setNewSearch] = useState("");
   const [persons, setPersons] = useState([]);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   // Populate data after rendering for the first time.
   useEffect( () => {
@@ -56,6 +59,10 @@ const App = () => {
           setNewName("");
           setNewNumber("");
         })
+      setSuccessMessage(`${nameObject.name} was successfully added to the database.`)
+      setTimeout( () => {
+        setSuccessMessage(null)
+      }, 5000);
     }
   }
 
@@ -66,6 +73,10 @@ const App = () => {
       .then( (returnedPerson) => {
         const newPersonsArray = persons.map( (person) => person.id !== id ? person : returnedPerson);
         setPersons(newPersonsArray);
+      })
+      .catch( (error) => {
+        setErrorMessage(`The person ${person.name} was already deleted from the server.`);
+        setPersons(persons.filter( (person) => person.id !== id));
       })
   }
 
@@ -98,6 +109,8 @@ const App = () => {
       />
 
       <h2>Add a New Contact</h2>
+      <Notification message={successMessage} type="success"/>
+      <Notification message={errorMessage} type="error" />
       <PersonForm 
         add={addPerson}
         name={newName}
