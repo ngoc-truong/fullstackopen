@@ -1,37 +1,34 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import Country from "./Country";
+import CountryList from "./CountryList";
 
 const Countries = ( {countriesToShow} ) => {
-    const [countries, setCountries] = useState(countriesToShow);
-    console.log(countries); // warum []???
-    // Mhh, ich muss irgendwie countriesToShow in einen State reinpacken
-    // Damit der "Klick" auf ein Land funktioniert.
+    const [countries, setCountries] = useState([]);
 
-    const handleClick = (event) => {
-        console.log(event.target.value);
+    // Populate countries state
+    const fillCountries = () => {
+        setCountries(countriesToShow);
     }
 
-    if (countriesToShow.length > 10) {
+    // 2nd parameter: Only useEffect when countriesToShow has changed
+    useEffect(fillCountries, [countriesToShow]);
+
+    // Event handlers
+    const showCountry = (event) => {
+        const targetCountry = countries.find(country => country.name === event.target.value);
+        setCountries([targetCountry]);
+    }
+
+    // Conditional Rendering
+    if (countries.length > 10) {
         return <p>Too many matches, specify another filter.</p>
-    } else if (countriesToShow.length === 1) {
-        return <Country country={countriesToShow[0]} />
+    } else if (countries.length === 1) {
+        return <Country country={countries[0]} />
     } else {
-        return (
-            <div>
-                {countriesToShow.map( (country, index) => {
-                    return (
-                        <div key={index}>
-                            <p>{country.name}</p>
-                            <button 
-                                onClick={handleClick}
-                                value={country.name}>
-                                    show
-                            </button>
-                        </div>
-                    )
-                })}
-            </div>
-        )
+        return <CountryList 
+                    countries={countries}
+                    showCountry={showCountry} 
+                />
     }
 }
 
